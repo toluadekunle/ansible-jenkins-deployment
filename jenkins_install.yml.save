@@ -1,0 +1,42 @@
+ll---
+- name: Install Jenkins on EC2
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Install dependencies
+      apt:
+        name: "{{ packages }}"
+        update_cache: yes
+        state: present
+      vars:
+        packages:
+          - software-properties-common
+          - apt-transport-https
+          - wget
+
+    - name: Add Jenkins repo key using wget
+      apt_key:
+        url: https://pkg.jenkins.io/debian/jenkins.io.key
+        state: present
+
+    - name: Add Jenkins repo
+      apt_repository:
+        repo: "deb https://pkg.jenkins.io/debian-stable binary/"
+        state: present
+
+    - name: Install Java (Jenkins Dependency)
+      apt:
+        name: openjdk-11-jdk
+        state: present
+
+    - name: Install Jenkins
+      apt:
+        name: jenkins
+        update_cache: yes
+        state: present
+
+    - name: Start Jenkins service
+      service:
+        name: jenkins
+        state: started
+

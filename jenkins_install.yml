@@ -1,0 +1,39 @@
+---
+- name: Install Jenkins on EC2 using Ansible Roles and Manual Tasks
+  hosts: localhost
+  become: yes
+  
+  roles:
+    - role: geerlingguy.java
+      java_packages:
+        - openjdk-11-jdk
+
+    - role: geerlingguy.jenkins
+
+  tasks:
+    - name: Install dependencies
+      apt:
+        name: "{{ packages }}"
+        update_cache: yes
+        state: present
+      vars:
+        packages:
+          - software-properties-common
+          - apt-transport-https
+          - wget
+
+    - name: Install Java (Jenkins Dependency)
+      apt:
+        name: openjdk-11-jdk
+        state: present
+
+    - name: Install Jenkins
+      apt:
+        name: jenkins
+        update_cache: yes
+        state: present
+
+    - name: Start Jenkins service
+      service:
+        name: jenkins
+        state: started
